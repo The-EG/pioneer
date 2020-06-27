@@ -29,6 +29,7 @@ else
     GIT_DIFF_TOOL="git diff-index --cached"
 fi
 
+FILES="$@"
 # Allow manually specifiying the files.
 FILES="$@"
 
@@ -70,8 +71,13 @@ if [[ ! -s $patch ]] ; then
     exit 0
 fi
 
+<<<<<<< HEAD
 if [[ $PATCH_MODE ]]; then
 	# Print the generated patch to stdout.
+=======
+if [ $PATCH_MODE ]; then
+	# Print the filename of the generated patch.
+>>>>>>> 8d7a3736a16ed20f3f583afecec344dce7fbe35e
 	cat "$patch"
     rm -f "$patch"
 	exit 1

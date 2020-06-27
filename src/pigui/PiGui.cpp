@@ -296,21 +296,24 @@ bool Instance::ProcessEvent(SDL_Event *event)
 void Instance::NewFrame()
 {
 	PROFILE_SCOPED()
-
-	switch (m_renderer->GetRendererType()) {
-	default:
-	case Graphics::RENDERER_DUMMY:
-		Error("RENDERER_DUMMY is not a valid renderer, aborting.");
-		return;
-	case Graphics::RENDERER_OPENGL_3x:
-		ImGui_ImplOpenGL3_NewFrame();
-		break;
-	}
-	ImGui_ImplSDL2_NewFrame(m_renderer->GetSDLWindow());
-	ImGui::NewFrame();
-
-	m_renderer->CheckRenderErrors(__FUNCTION__, __LINE__);
-	ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+	// this is not very pretty code and uses the Graphics::TextureGL class directly
+	// Texture descriptor defines the size, type.
+	// Gone for LINEAR_CLAMP here and RGBA like the original code
+	const vector2f texSize(1.0f, 1.0f);
+	const vector3f dataSize(width, height, 0.0f);
+	const Graphics::TextureDescriptor texDesc(Graphics::TEXTURE_RGBA_8888,
+		dataSize, texSize, Graphics::LINEAR_CLAMP,
+		false, false, false, 0, Graphics::TEXTURE_2D);
+	// Create the texture, calling it via renderer directly avoids the caching call of TextureBuilder
+	// However interestingly this gets called twice which would have been a WIN for the TextureBuilder :/
+	Graphics::Texture *pTex = Pi::renderer->CreateTexture(texDesc);
+	// Update it with the actual pixels, this is a two step process due to legacy code
+	pTex->Update(pixels, dataSize, Graphics::TEXTURE_RGBA_8888);
+	// nasty bit as I invoke the TextureGL
+	Graphics::OGL::TextureGL *pGLTex = reinterpret_cast<Graphics::OGL::TextureGL *>(pTex);
+	Uint32 result = pGLTex->GetTextureID();
+	m_svg_textures.push_back(pTex); // store for cleanup later
+	return reinterpret_cast<void *>(result);
 }
 
 void Instance::EndFrame()

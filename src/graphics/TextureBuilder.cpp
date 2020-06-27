@@ -23,8 +23,8 @@ namespace Graphics {
 		m_compressTextures(compressTextures),
 		m_anisotropicFiltering(anisoFiltering),
 		m_textureType(TEXTURE_2D),
-		m_layers(1),
-		m_prepared(false)
+		m_prepared(false),
+		m_layers(1)
 	{
 	}
 
@@ -36,8 +36,8 @@ namespace Graphics {
 		m_compressTextures(compressTextures),
 		m_anisotropicFiltering(anisoFiltering),
 		m_textureType(textureType),
-		m_layers(layers),
-		m_prepared(false)
+		m_prepared(false),
+		m_layers(layers)
 	{
 		m_filenames.push_back(filename);
 	}
@@ -51,8 +51,8 @@ namespace Graphics {
 		m_compressTextures(compressTextures),
 		m_anisotropicFiltering(anisoFiltering),
 		m_textureType(textureType),
-		m_layers(layers),
-		m_prepared(false)
+		m_prepared(false),
+		m_layers(layers)
 	{
 		assert(!m_filenames.empty());
 	}
