@@ -183,6 +183,25 @@ static int l_game_load_game(lua_State *l)
 	return 0;
 }
 
+static int l_game_new_from_save(lua_State* l)
+{
+	if (Pi::game) {
+		luaL_error(l, "can't load a game while a game is already running");
+		return 0;
+	}
+
+	const std::string filename(luaL_checkstring(l, 1));
+
+	try {
+		Pi::StartGame(Game::NewFromSave(filename));
+	} catch (CouldNotOpenFileException) {
+		const std::string msg = stringf(Lang::GAME_LOAD_CANNOT_OPEN, formatarg("filename", filename));
+		luaL_error(l, msg.c_str());
+	}
+
+	return 0;
+}
+
 /*
  * Function: CanLoadGame
  *
@@ -679,6 +698,7 @@ void LuaGame::Register()
 
 	static const luaL_Reg l_methods[] = {
 		{ "StartGame", l_game_start_game },
+		{ "NewFromSave", l_game_new_from_save },
 		{ "LoadGame", l_game_load_game },
 		{ "CanLoadGame", l_game_can_load_game },
 		{ "SaveGame", l_game_save_game },

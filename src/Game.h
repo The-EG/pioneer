@@ -40,6 +40,7 @@ class ObjectViewerView;
 
 class Game {
 public:
+	static Game *NewFromSave(const std::string filename);
 	static Json LoadGameToJson(const std::string &filename);
 	// LoadGame and SaveGame throw exceptions on failure
 	static Game *LoadGame(const std::string &filename);

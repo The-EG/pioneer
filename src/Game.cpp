@@ -118,6 +118,41 @@ Game::~Game()
 	m_galaxy->FlushCaches();
 }
 
+Game *Game::NewFromSave(const std::string filename)
+{
+	Json jsonObj = LoadGameToJson(filename);
+	float money = jsonObj["game_info"]["credits"];
+	double time = jsonObj["time"];
+
+	int player_ind = jsonObj["player"] - 1;
+	const Json player_body = jsonObj["space"]["bodies"][player_ind];
+	int sx = jsonObj["space"]["star_system"]["sector_x"];
+	int sy = jsonObj["space"]["star_system"]["sector_y"];
+	int sz = jsonObj["space"]["star_system"]["sector_z"];
+	int si = jsonObj["space"]["star_system"]["system_index"];
+	SystemPath sp;
+	Game *newGame;
+
+	if (player_body["ship"]["flight_state"]==3) { // docked 
+		int station_ind = player_body["ship"]["index_for_body_docked_with"];
+		// this doesn't always work! 
+		sp = SystemPath(sx, sy, sz, si, station_ind - 1);		
+	} else {
+		sp = SystemPath(sx, sy, sz, si);
+	}
+
+	// set the ship up
+	newGame = new Game(sp, time);
+	newGame->m_player->SetShipType(player_body["ship"]["ship_type_id"]);
+	newGame->m_player->UpdateEquipStats();
+	newGame->m_player->SetLabel(player_body["body"]["label"]);
+
+	// player stuff
+	LuaObject<Player>::CallMethod(newGame->GetPlayer(), "SetMoney", money);
+
+	return newGame;
+}
+
 Game::Game(const Json &jsonObj) :
 	m_timeAccel(TIMEACCEL_PAUSED),
 	m_requestedTimeAccel(TIMEACCEL_PAUSED),

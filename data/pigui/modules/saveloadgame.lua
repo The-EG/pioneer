@@ -119,9 +119,18 @@ local function closeAndLoadOrSave()
 	end
 end
 
+local function newFromSave()
+	Game.NewFromSave(selectedSave)
+	closeAndClearCache()
+end
+
 ui.saveLoadWindow = ModalWindow.New("LoadGame", function()
 	local mode = ui.saveLoadWindow.mode == 'SAVE' and lui.SAVE or lui.LOAD
 	optionTextButton(mode, nil, selectedSave ~= nil and selectedSave ~= '' and saveIsValid, closeAndLoadOrSave)
+	if ui.saveLoadWindow.mode == 'LOAD' then
+		ui.sameLine()
+		optionTextButton("New from save", nil, selectedSave ~= nil and selectedSave ~= '', newFromSave)
+	end 
 	ui.sameLine()
 	optionTextButton(lui.CANCEL, nil, true, closeAndClearCache)
 
