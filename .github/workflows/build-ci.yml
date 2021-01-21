@@ -7,6 +7,7 @@ on:
   push:
     branches:
     - master
+    - gha_sf
   pull_request:
     paths:
     - 'src/**.cpp'
@@ -90,6 +91,16 @@ jobs:
         with:
           name: Windows-Artifacts
           path: pioneer/pioneer-*-win.exe
+
+      - name: Upload to SourceForge
+        shell: pwsh
+        run: |
+          cd pioneer
+          sc config ssh-agent start= demand
+          net start ssh-agent
+          echo "${{ secrets.SF_SSH_TOKEN }}" | ssh-add -
+          scp -o "StrictHostKeyChecking=no" -B pioneer-*-win.exe the-eg@frs.sourceforge.net:/home/frs/project/pioneerspacesim/gha_testing/
+
 
   build-gcc:
     runs-on: ${{ matrix.os }}
